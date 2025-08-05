@@ -80,8 +80,8 @@ void AShooterCharacter::Look(const FInputActionValue& Value)
 
 void AShooterCharacter::Jump(const FInputActionValue& Value)
 {
-	if (Value.Get<bool>())
+	if (Value.Get<bool>()) // Check if the input action value indicates a jump (true for pressed)
     {
-        ACharacter::Jump();
+        ACharacter::Jump(); 
     }
 }
