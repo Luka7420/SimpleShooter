@@ -5,6 +5,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Gun.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -29,6 +30,8 @@ void AShooterCharacter::BeginPlay()
 			Subsystem->AddMappingContext(ShooterCharacterMappingContext, 0); 
 		}
 	}
+	// Spawn the gun actor
+	Gun = GetWorld()->SpawnActor<AGun>(GunClass); 
 	
 }
 
@@ -52,7 +55,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Move); 
 		// Bind the Look action to the Look function
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Look); 
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Jump); 
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AShooterCharacter::HandleJump); 
 
 
 	}
@@ -78,7 +81,7 @@ void AShooterCharacter::Look(const FInputActionValue& Value)
 	AddControllerPitchInput(LookVector.Y); // Add pitch input based on the Y component of the input vector
 }
 
-void AShooterCharacter::Jump(const FInputActionValue& Value)
+void AShooterCharacter::HandleJump(const FInputActionValue& Value)
 {
 	if (Value.Get<bool>()) // Check if the input action value indicates a jump (true for pressed)
     {
