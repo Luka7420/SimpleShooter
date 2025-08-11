@@ -32,7 +32,9 @@ void AShooterCharacter::BeginPlay()
 	}
 	// Spawn the gun actor
 	Gun = GetWorld()->SpawnActor<AGun>(GunClass); 
-	
+	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None); // Hide the weapon bone in the character mesh
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket")); // Attach the gun to the character's mesh at the specified socket
+	Gun->SetOwner(this); // Set the owner of the gun to this character
 }
 
 // Called every frame
@@ -56,7 +58,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		// Bind the Look action to the Look function
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AShooterCharacter::Look); 
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AShooterCharacter::HandleJump); 
-
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AShooterCharacter::Shoot);
 
 	}
 
@@ -87,4 +89,9 @@ void AShooterCharacter::HandleJump(const FInputActionValue& Value)
     {
         ACharacter::Jump(); 
     }
+}
+
+void AShooterCharacter::Shoot()
+{
+	Gun->PullTrigger();
 }
