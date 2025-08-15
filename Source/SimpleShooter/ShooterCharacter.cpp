@@ -20,6 +20,7 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Health = MaxHealth;
 	// Ensure we have a valid PlayerController
 	if(APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
@@ -35,6 +36,11 @@ void AShooterCharacter::BeginPlay()
 	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None); // Hide the weapon bone in the character mesh
 	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket")); // Attach the gun to the character's mesh at the specified socket
 	Gun->SetOwner(this); // Set the owner of the gun to this character
+}
+
+bool AShooterCharacter::IsDead() const
+{
+	return Health <= 0; 
 }
 
 // Called every frame
@@ -62,6 +68,15 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	}
 
+}
+
+float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser); // Call the base class TakeDamage function
+	DamageToApply = FMath::Min(Health, DamageToApply); // Ensure damage does not exceed current health
+	Health -= DamageToApply;
+	UE_LOG(LogTemp, Warning, TEXT("Remaining Health: %f"), Health); 
+	return DamageToApply; 
 }
 
 void AShooterCharacter::Move(const FInputActionValue& Value)
