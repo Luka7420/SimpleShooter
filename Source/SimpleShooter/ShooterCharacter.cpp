@@ -6,6 +6,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Gun.h"
+#include "Components/CapsuleComponent.h"
+#include "SimpleShooterGameMode.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -76,6 +78,18 @@ float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent cons
 	DamageToApply = FMath::Min(Health, DamageToApply); // Ensure damage does not exceed current health
 	Health -= DamageToApply;
 	UE_LOG(LogTemp, Warning, TEXT("Remaining Health: %f"), Health); 
+	
+	if(IsDead())
+	{
+		ASimpleShooterGameMode* GameMode = GetWorld()->GetAuthGameMode<ASimpleShooterGameMode>(); // Get the game mode
+		if(GameMode != nullptr)
+		{
+			GameMode->PawnKilled(this); 
+		}
+		DetachFromControllerPendingDestroy(); // Detach the character from its controller if dead
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision); // Disable collision
+	}
+	
 	return DamageToApply; 
 }
 

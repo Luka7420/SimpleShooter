@@ -14,4 +14,6 @@ class SIMPLESHOOTER_API AKillEmAllGameMode : public ASimpleShooterGameMode
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void PawnKilled(APawn* PawnKilled) override;	
 };
