@@ -8,6 +8,7 @@
 #include "Gun.h"
 #include "Components/CapsuleComponent.h"
 #include "SimpleShooterGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -74,23 +75,29 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser); // Call the base class TakeDamage function
-	DamageToApply = FMath::Min(Health, DamageToApply); // Ensure damage does not exceed current health
-	Health -= DamageToApply;
-	UE_LOG(LogTemp, Warning, TEXT("Remaining Health: %f"), Health); 
-	
-	if(IsDead())
-	{
-		ASimpleShooterGameMode* GameMode = GetWorld()->GetAuthGameMode<ASimpleShooterGameMode>(); // Get the game mode
-		if(GameMode != nullptr)
-		{
-			GameMode->PawnKilled(this); 
-		}
-		DetachFromControllerPendingDestroy(); // Detach the character from its controller if dead
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision); // Disable collision
-	}
-	
-	return DamageToApply; 
+    float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+    DamageToApply = FMath::Min(Health, DamageToApply);
+    Health -= DamageToApply;
+    UE_LOG(LogTemp, Warning, TEXT("Remaining Health: %f"), Health); 
+    
+    if(IsDead())
+    {
+        // Play death sound at character location
+        if (DeathSound)
+        {
+            UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
+        }
+
+        ASimpleShooterGameMode* GameMode = GetWorld()->GetAuthGameMode<ASimpleShooterGameMode>();
+        if(GameMode != nullptr)
+        {
+            GameMode->PawnKilled(this); 
+        }
+        DetachFromControllerPendingDestroy();
+        GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }
+    
+    return DamageToApply; 
 }
 
 void AShooterCharacter::Move(const FInputActionValue& Value)
@@ -123,4 +130,9 @@ void AShooterCharacter::HandleJump(const FInputActionValue& Value)
 void AShooterCharacter::Shoot()
 {
 	Gun->PullTrigger();
+}
+
+float AShooterCharacter::GetHealthPercent() const
+{
+	return Health / MaxHealth; 
 }

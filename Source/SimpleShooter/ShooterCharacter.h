@@ -39,9 +39,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* ShootAction;
 
+	UPROPERTY(EditAnywhere, Category = "Audio")
+    USoundBase* DeathSound;
+
 public:	
 	UFUNCTION(BlueprintPure)
 	bool IsDead() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetHealthPercent() const;
+
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

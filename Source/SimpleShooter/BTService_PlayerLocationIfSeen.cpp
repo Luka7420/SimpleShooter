@@ -31,7 +31,7 @@ void UBTService_PlayerLocationIfSeen::TickNode(UBehaviorTreeComponent& OwnerComp
     if(OwnerComp.GetAIOwner()->LineOfSightTo(PlayerPawn))
     {
         // Update the blackboard with the player's location
-        OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), PlayerPawn->GetActorLocation()); 
+        OwnerComp.GetBlackboardComponent()->SetValueAsObject(GetSelectedBlackboardKey(), PlayerPawn); 
     }
     else
     {
